@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>AR Building Hong Kong</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <!--<link rel="icon" href="%PUBLIC_URL%/favicon.ico" />-->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Web application created for HKU COMP7705" />
+    <!--<link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />-->
+    <!--<link rel="manifest" href="../src/index.css" />-->
+    <link rel="stylesheet" href="../src/index.css">
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
+    <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js'></script>
+    <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+</head>
+
+<body style="margin: 0; overflow: hidden;">
+  <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
+    <a-camera gps-camera='gpsMinDistance: 10' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
+  </a-scene>
+</body>
+</html>
+
+<script type="text/javascript">
+  async function updateBuildingEnitity(latitude, longitude) {
+    const west = longitude - 0.001;
+    const east = longitude + 0.001;
+    const south = latitude - 0.001;
+    const north = latitude + 0.001;
+    const response = await fetch(`https://ar-building-hk-be.ap-east-1.elasticbeanstalk.com/api/map?bbox=${west},${south},${east},${north}`);
+    const pois = await response.json();
+    console.log(pois.data.buildings.length);
+    const ac = document.querySelector("a-scene");
+    let html = "";
+    pois.data.buildings.forEach((building) => {
+      console.log(building.latitude);
+      console.log(building.longitude);
+      let template = document.createElement('template');
+      let existingAtext = document.getElementById(`#${building.id}`);
+      if (existingAtext) {
+        existingAtext.remove();
+      }
+      const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
+        <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="75 75 75" align="center"></a-text></a-entity>`;
+      template.innerHTML = html;
+      const node = template.content.firstChild;
+      ac.appendChild(node);
+    });
+    ac.flushToDOM(true);
+  }
+  async function getLocation() {
+      if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(showPosition);
+      }
+      else {
+          console.log("Geolocation is not supported by this browser");
+      }
+  }
+  async function showPosition(position) {
+    console.log("Latitude: " + position.coords.latitude);
+    console.log("Longitude: " + position.coords.longitude);
+    await updateBuildingEnitity(position.coords.latitude, position.coords.longitude);
+  }
+  document.querySelector('a-scene').addEventListener('loaded', async(e) => {
+      await getLocation();
+  });
+  const el = document.querySelector("[gps-camera]");
+  el.addEventListener("gps-camera-update-position", async(e) => {
+    await updateBuildingEnitity(e.detail.position.latitude, e.detail.position.longitude);
+  });
+</script>

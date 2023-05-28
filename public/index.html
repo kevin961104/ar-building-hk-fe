@@ -65,9 +65,9 @@
     console.log("Longitude: " + position.coords.longitude);
     await updateBuildingEnitity(position.coords.latitude, position.coords.longitude);
   }
-  document.querySelector('a-scene').addEventListener('loaded', async(e) => {
+  window.onload = async () => {
       await getLocation();
-  });
+  };
   const el = document.querySelector("[gps-camera]");
   el.addEventListener("gps-camera-update-position", async(e) => {
     await updateBuildingEnitity(e.detail.position.latitude, e.detail.position.longitude);

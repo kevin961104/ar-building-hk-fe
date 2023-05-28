@@ -20,7 +20,7 @@
 
 <body style="margin: 0; overflow: hidden;">
   <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
-    <a-camera gps-camera='gpsMinDistance: 10;minDistance: 40;' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
+    <a-camera gps-camera='gpsMinDistance: 40;minDistance: 40;' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
   </a-scene>
 </body>
 </html>
@@ -45,7 +45,7 @@
         existingAtext.remove();
       }
       const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
-        <a-text value="${building.building_name_en}" look-at="[gps-camera]" rotation="0 180 0" scale="15 15 15" align="center"></a-text></a-entity>`;
+        <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15" align="center"></a-text></a-entity>`;
       template.innerHTML = html;
       const node = template.content.firstChild;
       ac.appendChild(node);

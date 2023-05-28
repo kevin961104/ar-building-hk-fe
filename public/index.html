@@ -1,75 +1,524 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name="viewport" content="initial-scale=1.0,user-scalable=no,maximum-scale=1,width=device-width">
+    <meta aframe-injected="" name="mobile-web-app-capable" content="yes">
     <title>AR Building Hong Kong</title>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <!--<link rel="icon" href="%PUBLIC_URL%/favicon.ico" />-->
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta name="description" content="Web application created for HKU COMP7705" />
-    <!--<link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />-->
-    <!--<link rel="manifest" href="../src/index.css" />-->
-    <link rel="stylesheet" href="../src/index.css">
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
-    <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js'></script>
+    <script src="https://cdn.jsdelivr.net/gh/aframevr/aframe@1c2407b26c61958baa93967b5412487cd94b290b/dist/aframe-master.min.js"></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
+    <script src='https://raw.githack.com/cmcfadden/AR.js/master/aframe/build/aframe-ar.js'></script>
+    <script>THREEx.ArToolkitContext.baseURL = 'https://raw.githack.com/jeromeetienne/ar.js/master/three.js/'</script>
 </head>
 
-<body style="margin: 0; overflow: hidden;">
-  <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
-    <a-camera gps-camera='gpsMinDistance: 10' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
-  </a-scene>
-</body>
-</html>
+<!--
+<a-image data="1|test_building1|${building.latitude}|${building.longitude}" id="1" src="./home.png" clickhandler gps-entity-place="latitude: 44.97691; longitude: -93.23776;" rotation="0 0 0" material="alphaTest: 0.5" look-at="[gps-camera]" width="30" height="30"></a-image>
+<a-image data="2|test_building2|${building.latitude}|${building.longitude}" id="2" src="./home.png" clickhandler gps-entity-place="latitude: 44.97310; longitude: -93.23783;" rotation="0 0 0" material="alphaTest: 0.5" look-at="[gps-camera]" width="30" height="30"></a-image>
+-->
 
+<body style='margin: 0; overflow: hidden;'>
+  <div id="home" style="visibility:visible;" class="home container d-flex flex-column justify-content-center align-items-center min-vh-100">
+    <div class="logo-container text-center mb-4">
+      <img src="./logo.jpg" alt="Logo" class="logo img-fluid" style="max-width: 30%;height: 30%;"/>
+    </div>
+    <h1 style="max-width: 30%;height: 30%;" class="title text-center mb-4">Welcome to AR Building Hong Kong!</h1>
+    <button style="max-width: 30%;height: 30%;" type="button" onclick="directToARview()" class="homeBtn btn btn-main btn-lg">Start Here</button>
+  </div>
+    <a-scene cursor="rayOrigin: mouse" raycaster="objects: [gps-entity-place]" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false" embedded="true" arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: false;'>
+      <a-assets><img id="homeImg" src="./home.png"></img><img id="crossImg" src="./cross.png"></img></a-assets>
+      <a-camera look-controls gps-camera="gpsMinDistance: 40;minDistance: 40;maxDistance: 300;" arjs-look-controls='smoothingFactor: 0.1' rotation-reader far=900000>
+        <a-cursor color="#FD5086" sacle="0.5 0.5 0.5"></a-cursor>
+      </a-camera>
+    </a-scene>
+    <footer id="fter" class="d-flex flex-column">
+      <header>Aim a building and tap it to explore more!<image onclick="closeBottomMenu()" src="./cross.png" id="cross"></image><div class="instructionns mb-4"></div>
+      </header>
+        <menu id="ftmenu" class="menu">
+          <div id="menuitem" class="menuitem logo-container">
+            <h4 id="buildingName"></h4><hr>
+              <div id="building_section_root"></div>
+              <div>
+            </div>
+          </div>
+        </menu>
+      </footer>
+</body>
 <script type="text/javascript">
-  async function updateBuildingEnitity(latitude, longitude) {
-    const west = longitude - 0.001;
-    const east = longitude + 0.001;
-    const south = latitude - 0.001;
-    const north = latitude + 0.001;
-    const response = await fetch(`https://ar-building-hk-be.ap-east-1.elasticbeanstalk.com/api/map?bbox=${west},${south},${east},${north}`);
-    const pois = await response.json();
-    console.log(pois.data.buildings.length);
-    const ac = document.querySelector("a-scene");
-    let html = "";
-    pois.data.buildings.forEach((building) => {
-      console.log(building.latitude);
-      console.log(building.longitude);
+let current_building_id = -1;
+AFRAME.registerComponent("clickhandler", {
+  init: function() {
+    this.el.addEventListener("click", async ev => {
+      const building_id = Number(this.el.id);
+      const building_info = this.el.getAttribute('data');
+      const building_name = building_info?.split('|')[1] || '';
+      const building_name_h4 = document.getElementById('buildingName');
+      console.log('current building info ', building_name);
+      if (current_building_id !== building_id) {
+        building_name_h4.innerText = building_name;
+        popUpBottomMenu();
+        await getTrsactionData(building_id);
+        current_building_id = building_id;
+        console.log('current building id ', current_building_id);
+      }
+    });
+  }
+});
+function popUpBottomMenu() {
+    const menu = document.getElementById("ftmenu");
+    if (menu !== null) {
+      if (menu.style.maxHeight !== "400px") {
+        menu.style.maxHeight = "400px";
+      }
+    }
+  }
+  function closeBottomMenu() {
+    const menu = document.getElementById("ftmenu");
+    if (menu !== null) {
+      if (menu.style.maxHeight !== "0px") {
+        menu.style.maxHeight = "0px";
+        const buildingRoot = document.getElementById('building_section_root');
+        buildingRoot.innerHTML = "";
+        current_building_id = -1;
+      }
+    }
+  }
+  function directToARview() {
+    const home = document.getElementById("home");
+    if (home !== null) {
+      home.style.visibility = "hidden";
+    }
+  }
+  async function getTrsactionData(building_id) {
+  let response;
+  const buildingId = Number(building_id);
+  const buildingRoot = document.getElementById('building_section_root');
+  buildingRoot.innerHTML = "Loading transaction data, please wait..";
+  try {
+    response = await fetch(`https://ar-building-hong-kong-app.ap-east-1.elasticbeanstalk.com/api/map/tnx?building_id=${buildingId}`);
+  } catch (ex) {
+    console.log(ex);
+  }
+  const pois = await response.json();
+  const buildingTnxs = pois.data.buildingTnxs;
+  const buildingTnxSize = buildingTnxs?.length || 0;
+  console.log(buildingTnxSize);
+  console.log(`https://ar-building-hong-kong-app.ap-east-1.elasticbeanstalk.com/api/map/tnx?building_id=${buildingId}`);
+  const ac = document.querySelector("a-scene");
+  let html = "";
+  html += `<div class="building_section_child">`;
+  if (buildingTnxSize > 0) {
+    buildingTnxs.forEach((tnx) => {
+      const date = tnx?.date?.split(': ');
+      html += `<image class="buildingImg" src="${tnx.photo}"></image>`;
+      html += `<span class="buildingTnxDetails"><b>Unit:</b> ${tnx.unit}</span>`;
+      html += `<span class="buildingTnxDetails"><b>Room(s):</b> ${tnx.room}</span>`;
+      html += `<span class="buildingTnxDetails"><b>Nfa:</b> ${tnx.nfa}</span>`;
+      html += `<span class="buildingTnxDetails"><b>Price:</b> ${tnx.price} USD</span>`;
+      html += `<span class="buildingTnxDetails"><b>Building Age:</b> ${tnx.building_age}</span>`;
+      html += `<span class="buildingTnxDetails"><b>Unnamed:</b> ${tnx.unnamed}</span>`;
+      html += `<span class="buildingTnxDetails"><b>${date[0]}:</b> ${date[1]}</span>`;
+      html += `<span class="buildingTnxDetails"><b>Address:</b> ${tnx.address}</span><hr>`;
+    });
+    html += `</div>`;
+    buildingRoot.innerHTML = html;
+  } else {
+    buildingRoot.innerHTML = "Sorry, no available transaction data.";
+  }
+}
+async function updateBuildingEnitity(latitude, longitude) {
+  const west = longitude - 0.0012;
+  const east = longitude + 0.0012;
+  const south = latitude - 0.0012;
+  const north = latitude + 0.0012;
+  let response;
+  try {
+    response = await fetch(`https://ar-building-hong-kong-app.ap-east-1.elasticbeanstalk.com/api/map?bbox=${west},${south},${east},${north}`);
+  } catch (ex) {
+    console.log(ex);
+  }
+  const pois = await response.json();
+  const nearBuildings = pois.data.buildings;
+  console.log(nearBuildings.length);
+  console.log(`https://ar-building-hong-kong-app.ap-east-1.elasticbeanstalk.com/api/map?bbox=${west},${south},${east},${north}`);
+  const ac = document.querySelector("a-scene");
+  let html = "";
+  nearBuildings.forEach((building) => {
       let template = document.createElement('template');
       let existingAtext = document.getElementById(`#${building.id}`);
-      if (existingAtext) {
-        existingAtext.remove();
+      if (!existingAtext === true) {
+        const html = `<a-image data="${building.id}|${building.building_name_en}|${building.latitude}|${building.longitude}" id="${building.id}" clickhandler src="./home.png" rotation="0 0 0" material="alphaTest: 0.5;" look-at="[gps-camera]" width="7" height="7" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-image>`;
+          template.innerHTML = html;
+          const node = template.content.firstChild;
+          /*
+          const clickListener = function (ev) {
+              ev.stopPropagation();
+              ev.preventDefault();
+              const name = ev.target.getAttribute('name');
+              const el = ev.detail.intersection && ev.detail.intersection.object.el;
+              if (el && el === ev.target) {
+                alert("test");
+              }
+          };
+          node.addEventListener('click', clickListener);
+          */
+          ac.appendChild(node);
+      } else {
+        let isInBbox = nearBuildings.find(b => b.id === Number(existingAtext.getAttribute("id")));
+        if (!isInBbox === true) {
+          console.log(`${existingAtext.getAttribute("id")} removed`);
+          existingAtext.remove();
+        }
       }
-      const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
-        <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="75 75 75" align="center"></a-text></a-entity>`;
-      template.innerHTML = html;
-      const node = template.content.firstChild;
-      ac.appendChild(node);
     });
+    /*
+    var raycasterEl = AFRAME.scenes[0].querySelector('[raycaster]');
+    raycasterEl.components.raycaster.refreshObjects();
+    */
+}
+function refreshAc() {
+  const ac = document.querySelector("a-scene");
+  if (ac !== null) {
     ac.flushToDOM(true);
   }
-  async function getLocation() {
-      if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(showPosition);
-      }
-      else {
-          console.log("Geolocation is not supported by this browser");
-      }
-  }
-  async function showPosition(position) {
+}
+window.onload = async () => {
+  navigator.geolocation.getCurrentPosition(async (position) => {
     console.log("Latitude: " + position.coords.latitude);
     console.log("Longitude: " + position.coords.longitude);
     await updateBuildingEnitity(position.coords.latitude, position.coords.longitude);
-  }
-  document.querySelector('a-scene').addEventListener('loaded', async(e) => {
-      await getLocation();
   });
   const el = document.querySelector("[gps-camera]");
-  el.addEventListener("gps-camera-update-position", async(e) => {
-    await updateBuildingEnitity(e.detail.position.latitude, e.detail.position.longitude);
+  el.addEventListener("gps-camera-update-position", async() => {
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      console.log("Latitude: " + position.coords.latitude);
+      console.log("Longitude: " + position.coords.longitude);
+      await updateBuildingEnitity(position.coords.latitude, position.coords.longitude);
+    });
   });
+  setInterval(refreshAc, 1000);
+};
 </script>
+<style>
+  .buildingTnxDetails {
+    display: block;
+    margin-block-start: 1.33em;
+    margin-block-end: 1.33em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+  }
+  hr {
+    height: 12px;
+    border: 0;
+    box-shadow: inset 0 10px 10px -10px rgba(100, 100, 100, 0.5);
+  }
+  .buildingImg {
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+  }
+  #cross {
+    width: 20px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    padding: 15px;
+    cursor: pointer;
+  }
+  canvas {
+    z-index: -1;
+  }
+  .btn {
+  --bs-btn-padding-x: 0.75rem;
+  --bs-btn-padding-y: 0.375rem;
+  --bs-btn-font-family: font-family: 'Roboto', sans-serif !important;
+  --bs-btn-font-size: 1rem;
+  --bs-btn-font-weight: 400;
+  --bs-btn-line-height: 1.5;
+  --bs-btn-color: var(--bs-body-color);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-width: var(--bs-border-width);
+  --bs-btn-border-color: transparent;
+  --bs-btn-border-radius: var(--bs-border-radius);
+  --bs-btn-hover-border-color: transparent;
+  --bs-btn-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 1px 1px rgba(0, 0, 0, 0.075);
+  --bs-btn-disabled-opacity: 0.65;
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem
+    rgba(var(--bs-btn-focus-shadow-rgb), 0.5);
+  display: inline-block;
+  padding: var(--bs-btn-padding-y) var(--bs-btn-padding-x);
+  font-family: var(--bs-btn-font-family);
+  font-size: var(--bs-btn-font-size);
+  font-weight: var(--bs-btn-font-weight);
+  line-height: var(--bs-btn-line-height);
+  color: var(--bs-btn-color);
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  border: var(--bs-btn-border-width) solid var(--bs-btn-border-color);
+  border-radius: var(--bs-btn-border-radius);
+  background-color: var(--bs-btn-bg);
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}
+.btn:hover {
+  color: var(--bs-btn-hover-color);
+  background-color: var(--bs-btn-hover-bg);
+  border-color: var(--bs-btn-hover-border-color);
+}
+.btn-check + .btn:hover {
+  color: var(--bs-btn-color);
+  background-color: var(--bs-btn-bg);
+  border-color: var(--bs-btn-border-color);
+}
+.btn:focus-visible {
+  color: var(--bs-btn-hover-color);
+  background-color: var(--bs-btn-hover-bg);
+  border-color: var(--bs-btn-hover-border-color);
+  outline: 0;
+  box-shadow: var(--bs-btn-focus-box-shadow);
+}
+.btn-check:focus-visible + .btn {
+  border-color: var(--bs-btn-hover-border-color);
+  outline: 0;
+  box-shadow: var(--bs-btn-focus-box-shadow);
+}
+.btn-check:checked + .btn,
+.btn.active,
+.btn.show,
+.btn:first-child:active,
+:not(.btn-check) + .btn:active {
+  color: var(--bs-btn-active-color);
+  background-color: var(--bs-btn-active-bg);
+  border-color: var(--bs-btn-active-border-color);
+}
+.btn-check:checked + .btn:focus-visible,
+.btn.active:focus-visible,
+.btn.show:focus-visible,
+.btn:first-child:active:focus-visible,
+:not(.btn-check) + .btn:active:focus-visible {
+  box-shadow: var(--bs-btn-focus-box-shadow);
+}
+.btn.disabled,
+.btn:disabled,
+fieldset:disabled .btn {
+  color: var(--bs-btn-disabled-color);
+  pointer-events: none;
+  background-color: var(--bs-btn-disabled-bg);
+  border-color: var(--bs-btn-disabled-border-color);
+  opacity: var(--bs-btn-disabled-opacity);
+}
+  .btn-lg {
+  --bs-btn-padding-y: 0.5rem;
+  --bs-btn-padding-x: 1rem;
+  --bs-btn-font-size: 1.25rem;
+  --bs-btn-border-radius: var(--bs-border-radius-lg);
+}
+  .btn-main {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #FD5086;
+  --bs-btn-border-color: #FD5086;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #e74a7c;
+  --bs-btn-hover-border-color: #e4497a;
+  --bs-btn-focus-shadow-rgb: 49, 132, 253;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #e4497a;
+  --bs-btn-active-border-color: #FD5086;
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: #FD5086;
+  --bs-btn-disabled-border-color: #FD5086;
+}
+  .logo-container {
+    object-fit: contain;
+}
+  .min-vh-100 {
+  min-height: 100vh !important;
+}
+  .align-items-center {
+  align-items: center !important;
+}
+  .justify-content-center {
+  justify-content: center !important;
+}
+  .flex-column {
+  flex-direction: column !important;
+}
+  .container,
+.container-fluid,
+.container-lg,
+.container-md,
+.container-sm,
+.container-xl,
+.container-xxl {
+  --bs-gutter-x: 1.5rem;
+  --bs-gutter-y: 0;
+  width: 100%;
+  padding-right: calc(var(--bs-gutter-x) * 0.5);
+  padding-left: calc(var(--bs-gutter-x) * 0.5);
+  margin-right: auto;
+  margin-left: auto;
+}
+  .img-fluid {
+  max-width: 100%;
+  height: auto;
+}
+  .text-center {
+  text-align: center !important;
+}
+  .mb-4 {
+  margin-bottom: 1.5rem !important;
+}
+  html {
+    font-family: 'Roboto', sans-serif !important;
+  }
+  .title {
+    font-size: 1.1em;
+    object-fit: contain;
+    width:100%;
+    height:100%;
+  }
+  .homeBtn {
+    font-size: 1.1em;
+    object-fit: contain;
+    width:100%;
+    height:100%;
+  }
+  .logo {
+    vertical-align: middle;
+    width:100%;
+    height:100%;
+  }
+  .centered {
+    height: 20%;
+    justify-content: center;
+    position: fixed;
+    bottom: 0%;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin: 0px auto;
+    left: 0;
+    right: 0;
+  }
+  .instructions {
+    position: fixed;
+    top: 5%;
+    font-size: 1.25em;
+    color: white;
+    z-index: 999999;
+}
+  .menu .fa {
+    margin-right: 10px;
+    margin-left: -10px;
+  }
+  
+  header .icon {
+    -webkit-transition: 0.3s;
+    transition: 0.3s;
+    margin-left: 1em;
+  }
+  
+  footer header {
+    width: 100%;
+    font-size: 1em;
+    padding: 1em 0;
+    position: relative;
+    font-weight: 300;
+    text-align: center;
+    color: #fff;
+    background: #FD5086;
+    box-shadow: 5px 5px 5px #36363509;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+    z-index: 9999999;
+  }
+  .menu {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    background: #FAF9F6;
+    overflow: hidden;
+    -webkit-transition: 0.1s;
+    transition: 0.1s;
+    -webkit-transition-delay: 0.1s;
+    transition-delay: 0.1s;
+    max-height: 0;
+    width: 100%;
+    z-index: 9999999;
+  }
+  
+  .menuitem {
+    color: black;
+    display: block;
+    padding: 1em;
+    font-weight: 300;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+    opacity: 1;
+    width: 100%;
+    height: 30vh;
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+
+  footer {
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+    -webkit-transition: 0.2s;
+    transition: 0.2s;
+    color: #fff;
+    z-index: 9999;
+    display: flex;
+    left: 0;
+  }
+  footer:hover .menuitem {
+    margin-left: 0;
+    opacity: 1;
+  }
+  footer:hover header {
+    height: 31px;
+  }
+  .instructionns {
+    width: 0;
+    position: absolute;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0.6em;
+    font-weight: 100;
+    transition: 0.5s;
+    -webkit-transition: 0.5s;
+    -moz-transition: 0.5s;
+  }
+  .home {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: white;
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .home div {
+    text-align: center;
+    font-size: 1.25em;
+    color: white;
+  }
+</style>

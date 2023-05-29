@@ -31,7 +31,7 @@
 
 <body style="margin: 0; overflow: hidden;">
   <a-scene embedded vr-mode-ui='enabled: false' arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: true' renderer='antialias: true; alpha: true'>
-    <a-camera near='0.1' far='100' gps-camera='minDistance: 40;' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
+    <a-camera gps-camera='minDistance: 40;' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
   </a-scene>
 </body>
 </html>
@@ -55,8 +55,8 @@
       let existingAtext = document.getElementById(`#${building.id}`);
       console.log(!existingAtext);
       if (!existingAtext === true) {
-        const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
-        <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15" align="center"></a-text></a-entity>`;
+        const html = `<a-link id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
+        <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15" align="center"></a-text></a-link>`;
         template.innerHTML = html;
         const node = template.content.firstChild;
         node.addEventListener('loaded', () => {

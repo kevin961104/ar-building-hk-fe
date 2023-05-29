@@ -18,16 +18,11 @@
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
     <script src="https://cdn.rawgit.com/jujunjun110/aframe-crawling-cursor/master/dist/aframe-crawling-cursor.min.js"></script>
 </head>
-
 <body style="margin: 0; overflow: hidden;">
-  <a-scene vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false'>
-    <a-camera camera="fov: 80;" gps-camera='gpsMinDistance: 5;minDistance: 5;maxDistance: 50;' look-controls-enabled='false' listener look-controls="reverseMouseDrag:true; touchEnabled: false" look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader>
-      <a-cursor raycaster="far: 20; objects: .raycastable"
-        cursor="fuse: true; fuseTimeout: 500"
-        position="0 0 -1"
-        geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
-        material="color: green; shader: flat">
-      </a-cursor>
+  <a-scene cursor='rayOrigin: mouse; fuse: true; fuseTimeout: 0;' raycaster="objects: [gps-entity-place];" embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false'>
+    <a-camera gps-camera='minDistance: 20' look-controls-enabled='false' listener look-controls look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader>
+      <a-cursor position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
+      <a-image src="./crosshair.png" material="alphaTest: 0.5" width="0.07" height="0.07" position="0 0 -1"></a-image>
     </a-camera>
   </a-scene>
 </body>
@@ -53,7 +48,7 @@
       let existingAtext = document.getElementById(`#${building.id}`);
       if (!existingAtext === true) {
         const html = `<a-entity class="raycastable" id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
-          <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15" posi></a-text></a-entity>`;
+          <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15"></a-text></a-entity>`;
           template.innerHTML = html;
           const node = template.content.firstChild;
           ac.appendChild(node);

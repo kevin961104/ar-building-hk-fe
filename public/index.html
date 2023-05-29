@@ -26,7 +26,8 @@
 </html>
 
 <style>
-  .a-canvas.a-grab-cursor:hover{cursor:default !important}.a-canvas.a-grab-cursor:active,.a-grabbing{cursor:default !important}
+  .a-canvas.a-grab-cursor:hover{z-index:-1;cursor:default !important}.a-canvas.a-grab-cursor:active,.a-grabbing{z-index:-1;cursor:default !important}
+  canvas{z-index: -1;}
 </style>
 <script type="text/javascript">
   async function updateBuildingEnitity(latitude, longitude) {
@@ -45,7 +46,7 @@
       let existingAtext = document.getElementById(`#${building.id}`);
       if (!existingAtext === true) {
         const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
-          <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15"></a-text></a-entity>`;
+          <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15" position="0 10 0"></a-text></a-entity>`;
           template.innerHTML = html;
           const node = template.content.firstChild;
           ac.appendChild(node);

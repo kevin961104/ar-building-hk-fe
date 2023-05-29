@@ -41,14 +41,13 @@
       console.log(building.longitude);
       let template = document.createElement('template');
       let existingAtext = document.getElementById(`#${building.id}`);
-      if (existingAtext) {
-        existingAtext.remove();
-      }
-      const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
+      if (!existingAtext) {
+        const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
         <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15" align="center"></a-text></a-entity>`;
-      template.innerHTML = html;
-      const node = template.content.firstChild;
-      ac.appendChild(node);
+        template.innerHTML = html;
+        const node = template.content.firstChild;
+        ac.appendChild(node);
+      }
     });
     ac.flushToDOM(true);
   }

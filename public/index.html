@@ -20,7 +20,7 @@
 
 <body style="margin: 0; overflow: hidden;">
   <a-scene embedded vr-mode-ui='enabled: false' look-controls='enabled:true;mouseEnabled:false;reverseMouseDrag:false;reverseTouchDrag:false;' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: true' renderer='antialias: true; alpha: true'>
-    <a-camera near='0.1' far='100' gps-camera='gpsMinDistance: 5;minDistance: 40;' look-controls='enabled:true;mouseEnabled:false;reverseMouseDrag:false;reverseTouchDrag:false;' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.5' rotation-reader></a-camera>
+    <a-camera gps-camera='gpsMinDistance: 5;minDistance: 40;maxDistance: 100;' look-controls='enabled:true;mouseEnabled:false;reverseMouseDrag:false;reverseTouchDrag:false;' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.5' rotation-reader></a-camera>
   </a-scene>
 </body>
 </html>
@@ -40,13 +40,11 @@
     pois.data.buildings.forEach((building) => {
       let template = document.createElement('template');
       let existingAtext = document.getElementById(`#${building.id}`);
-      if (!existingAtext === true) {
-        const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
+      const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
         <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="35 35 35" align="center"></a-text></a-entity>`;
         template.innerHTML = html;
         const node = template.content.firstChild;
         ac.appendChild(node);
-      }
     });
     ac.flushToDOM(true);
   }

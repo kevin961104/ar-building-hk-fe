@@ -20,11 +20,14 @@
 
 <body style="margin: 0; overflow: hidden;">
   <a-scene embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
-    <a-camera gps-camera='gpsMinDistance: 1;minDistance: 10;maxDistance: 100;' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
+    <a-camera gps-camera='gpsMinDistance: 5;minDistance: 10;maxDistance: 100;' look-controls-enabled='false' look-controls='reverseMouseDrag:true; touchEnabled: false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
   </a-scene>
 </body>
 </html>
 
+<style>
+  .a-canvas.a-grab-cursor:hover{cursor:default !important}.a-canvas.a-grab-cursor:active,.a-grabbing{cursor:default !important}
+</style>
 <script type="text/javascript">
   async function updateBuildingEnitity(latitude, longitude) {
     const west = longitude - 0.0015;

@@ -45,7 +45,7 @@
       let existingAtext = document.getElementById(`#${building.id}`);
       if (!existingAtext === true) {
         const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
-          <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="25 25 25"></a-text></a-entity>`;
+          <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15"></a-text></a-entity>`;
           template.innerHTML = html;
           const node = template.content.firstChild;
           ac.appendChild(node);

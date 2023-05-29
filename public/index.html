@@ -34,7 +34,7 @@
     const response = await fetch(`https://ar-building-hk-be.ap-east-1.elasticbeanstalk.com/api/map?bbox=${west},${south},${east},${north}`);
     const pois = await response.json();
     console.log(pois.data.buildings.length);
-    console.log(`${west} ${east} ${south} ${north}`);
+    console.log(`https://ar-building-hk-be.ap-east-1.elasticbeanstalk.com/api/map?bbox=${west},${south},${east},${north}`);
     const ac = document.querySelector("a-scene");
     let html = "";
     pois.data.buildings.forEach((building) => {

@@ -53,6 +53,7 @@
       console.log(building.longitude);
       let template = document.createElement('template');
       let existingAtext = document.getElementById(`#${building.id}`);
+      console.log(!existingAtext);
       if (!existingAtext) {
         const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
         <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15" align="center"></a-text></a-entity>`;

@@ -20,7 +20,7 @@
 
 <body style="margin: 0; overflow: hidden;">
   <a-scene embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
-    <a-camera gps-camera='gpsMinDistance: 5;minDistance: 10;maxDistance: 100;' look-controls-enabled='false' look-controls='reverseMouseDrag:true; touchEnabled: false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
+    <a-camera camera="fov: 80;" gps-camera='gpsMinDistance: 5;minDistance: 10;maxDistance: 100;' look-controls-enabled='false' look-controls='reverseMouseDrag:true; touchEnabled: false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
   </a-scene>
 </body>
 </html>

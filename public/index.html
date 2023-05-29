@@ -19,8 +19,8 @@
 </head>
 
 <body style="margin: 0; overflow: hidden;">
-  <a-scene embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
-    <a-camera camera="fov: 80;" gps-camera='gpsMinDistance: 5;minDistance: 10;maxDistance: 100;' look-controls-enabled='false' look-controls='reverseMouseDrag:true; touchEnabled: false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
+  <a-scene vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false'>
+    <a-camera camera="fov: 80;" gps-camera='gpsMinDistance: 5;minDistance: 5;maxDistance: 60;' look-controls-enabled='false' look-controls='pointerLockEnabled:true;reverseMouseDrag:true;touchEnabled: false;' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.2' rotation-reader></a-camera>
   </a-scene>
 </body>
 </html>
@@ -45,7 +45,7 @@
       let existingAtext = document.getElementById(`#${building.id}`);
       if (!existingAtext === true) {
         const html = `<a-entity id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
-          <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="25 25 25" position="0 20 0"></a-text></a-entity>`;
+          <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="25 25 25"></a-text></a-entity>`;
           template.innerHTML = html;
           const node = template.content.firstChild;
           ac.appendChild(node);
@@ -66,9 +66,11 @@
     console.log("Longitude: " + position.coords.longitude);
     await updateBuildingEnitity(position.coords.latitude, position.coords.longitude);
   }
+  /*
   window.onload = async () => {
       await getLocation();
   };
+  */
   const el = document.querySelector("[gps-camera]");
   el.addEventListener("gps-camera-update-position", async(e) => {
     await updateBuildingEnitity(e.detail.position.latitude, e.detail.position.longitude);

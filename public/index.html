@@ -19,7 +19,7 @@
 </head>
 
 <body style="margin: 0; overflow: hidden;">
-  <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
+  <a-scene vr-mode-ui='enabled: false' cursor='rayOrigin: mouse; fuse: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
     <a-camera near='0.1' far='100' gps-camera='gpsMinDistance: 5;minDistance: 40;' look-controls-enabled='false' look-at="[gps-camera]" rotation-reader></a-camera>
   </a-scene>
 </body>

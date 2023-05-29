@@ -10,11 +10,12 @@
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="Web application created for HKU COMP7705" />
     <link rel="stylesheet" href="../src/index.css" />
-    <script type='text/javascript' src='../src/index.js' />
-    <script type='text/javascript' src='../src/aframe.min.js' />
-    <script type='text/javascript' src='../src/ar-threex-location-only.js' />
-    <script type='text/javascript' src='../src/aframe-ar.js' />
-    <script type='text/javascript' src="../src/aframe-look-at-component.min.js" />
+    <script src='https://aframe.io/releases/0.9.2/aframe.min.js'></script>
+    <script src="https://raw.githack.com/jeromeetienne/AR.js/master/aframe/build/aframe-ar.min.js"></script>
+    <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
+    <script>
+        THREEx.ArToolkitContext.baseURL = 'https://raw.githack.com/jeromeetienne/ar.js/master/three.js/'
+    </script>
     <script type="text/javascript">
       AFRAME.registerComponent("visibility", {
         init: function () {
@@ -29,8 +30,8 @@
 </head>
 
 <body style="margin: 0; overflow: hidden;">
-  <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; debugUIEnabled: true' renderer='antialias: true; alpha: true'>
-    <a-camera near='0.1' far='100' gps-camera='gpsMinDistance: 5;minDistance: 40;' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
+  <a-scene embedded vr-mode-ui='enabled: false' arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960; debugUIEnabled: true' renderer='antialias: true; alpha: true'>
+    <a-camera near='0.1' far='100' gps-camera='minDistance: 40;' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
   </a-scene>
 </body>
 </html>
@@ -57,6 +58,9 @@
         <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15" align="center"></a-text></a-entity>`;
         template.innerHTML = html;
         const node = template.content.firstChild;
+        node.addEventListener('loaded', () => {
+            window.dispatchEvent(new CustomEvent('gps-entity-place-loaded'));
+        });
         ac.appendChild(node);
       }
     });

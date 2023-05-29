@@ -20,17 +20,17 @@
 
 <body style="margin: 0; overflow: hidden;">
   <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
-    <a-camera gps-camera='gpsMinDistance: 5;minDistance: 40;' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
+    <a-camera near='0.1' far='100' gps-camera='gpsMinDistance: 5;minDistance: 40;' look-controls-enabled='false' look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader></a-camera>
   </a-scene>
 </body>
 </html>
 
 <script type="text/javascript">
   async function updateBuildingEnitity(latitude, longitude) {
-    const west = longitude - 0.0005;
-    const east = longitude + 0.0005;
-    const south = latitude - 0.0005;
-    const north = latitude + 0.0005;
+    const west = longitude - 0.001;
+    const east = longitude + 0.001;
+    const south = latitude - 0.001;
+    const north = latitude + 0.001;
     const response = await fetch(`https://ar-building-hk-be.ap-east-1.elasticbeanstalk.com/api/map?bbox=${west},${south},${east},${north}`);
     const pois = await response.json();
     console.log(pois.data.buildings.length);

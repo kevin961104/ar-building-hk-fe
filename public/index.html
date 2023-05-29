@@ -19,7 +19,7 @@
     <script src="https://cdn.rawgit.com/jujunjun110/aframe-crawling-cursor/master/dist/aframe-crawling-cursor.min.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
-  <a-scene cursor='rayOrigin: mouse; fuse: true; fuseTimeout: 0;' raycaster="objects: [gps-entity-place];" embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false'>
+  <a-scene cursor='rayOrigin: mouse; fuse: true; fuseTimeout: 0;' raycaster="objects: .raycastable;" embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false'>
     <a-camera gps-camera='minDistance: 0' look-controls-enabled='false' listener look-controls look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader>
       <a-cursor position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
       <a-image src="./crosshair.png" material="alphaTest: 0.5" width="0.07" height="0.07" position="0 0 -1"></a-image>
@@ -32,6 +32,25 @@
   .a-canvas.a-grab-cursor:hover{z-index:-1;cursor:default !important}.a-canvas.a-grab-cursor:active,.a-grabbing{z-index:-1;cursor:default !important}
 </style>
 <script type="text/javascript">
+    AFRAME.registerComponent('cursor-listener', {
+    dependencies: ['raycaster'],
+  init: function () {
+    var lastIndex = -1;
+    var COLORS = ['red', 'green', 'blue'];
+    this.el.addEventListener('raycaster-intersected', function (e) {
+      lastIndex = (lastIndex + 1) % COLORS.length;
+      this.setAttribute('material', 'color', COLORS[lastIndex]);
+      this.setAttribute('visible', 'true');
+      console.log('I was fused at: ', e.detail.getIntersection(e.target).object.el.attributes[2].value);
+    });
+    this.el.addEventListener('raycaster-intersected-cleared', function (e) {
+      lastIndex = (lastIndex + 1) % COLORS.length;
+      this.setAttribute('material', 'color', COLORS[lastIndex]);
+      this.setAttribute('visible', 'false');
+      console.log('I leave fused now');
+    });
+  }
+});
   async function updateBuildingEnitity(latitude, longitude) {
     const west = longitude - 0.0012;
     const east = longitude + 0.0012;

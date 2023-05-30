@@ -16,11 +16,10 @@
     <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/three.js/build/ar-threex-location-only.js'></script>
     <script type='text/javascript' src='https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js'></script>
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
-    <script src="https://cdn.rawgit.com/jujunjun110/aframe-crawling-cursor/master/dist/aframe-crawling-cursor.min.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
   <a-scene embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false'>
-    <a-camera gps-camera='minDistance: 0' look-controls-enabled='false' listener look-controls look-at="[gps-camera]" arjs-look-controls='smoothingFactor: 0.1' rotation-reader>
+    <a-camera gps-camera='minDistance: 0' look-controls-enabled='false' listener look-controls arjs-look-controls='smoothingFactor: 0.1' rotation-reader>
       <a-cursor cursor='rayOrigin: mouse; fuse: true; fuseTimeout: 0;' raycaster="objects: .raycastable;" position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
       <a-image src="./crosshair.png" material="alphaTest: 0.5" width="0.07" height="0.07" position="0 0 -1"></a-image>
     </a-camera>
@@ -30,11 +29,10 @@
 
 <style>
   .a-canvas.a-grab-cursor:hover{z-index:-1;cursor:default !important}.a-canvas.a-grab-cursor:active,.a-grabbing{z-index:-1;cursor:default !important}
-  canvas { z-index: -1; }
 </style>
 <script type="text/javascript">
-    AFRAME.registerComponent('cursor-listener', {
-    dependencies: ['raycaster'],
+  AFRAME.registerComponent('cursor-listener', {
+  dependencies: ['raycaster'],
   init: function () {
     var lastIndex = -1;
     var COLORS = ['red', 'green', 'blue'];
@@ -67,8 +65,7 @@
       let template = document.createElement('template');
       let existingAtext = document.getElementById(`#${building.id}`);
       if (!existingAtext === true) {
-        const html = `<a-entity visible="false" scale="40 40 40" geometry="primitive: box" material="color: red" data="${building.building_name_en}" cursor-listener class="raycastable" id="${building.id}" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};">
-          <a-text value="${building.building_name_en}" look-at="[gps-camera]" scale="15 15 15" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-text></a-entity>`;
+        const html = `<a-text visible="true" value="${building.building_name_en}" look-at="[gps-camera]" cursor-listener class="raycastable" scale="10 10 10" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-text>`;
           template.innerHTML = html;
           const node = template.content.firstChild;
           ac.appendChild(node);
@@ -92,8 +89,8 @@
   window.onload = async () => {
       await getLocation();
       const el = document.querySelector("[gps-camera]");
-      el.addEventListener("gps-camera-update-position", async(e) => {
-        await updateBuildingEnitity(e.detail.position.latitude, e.detail.position.longitude);
+      el.addEventListener("gps-camera-update-position", async() => {
+        await getLocation();
       });
   };
 </script>

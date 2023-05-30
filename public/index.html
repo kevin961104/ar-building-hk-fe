@@ -22,6 +22,7 @@
     <a-camera gps-camera='minDistance: 0' look-controls-enabled='false' listener look-controls arjs-look-controls='smoothingFactor: 0.1' rotation-reader>
       <a-cursor cursor='rayOrigin: mouse; fuse: true; fuseTimeout: 0;' raycaster="objects: .raycastable;" position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
       <a-image src="./crosshair.png" material="alphaTest: 0.5" width="0.07" height="0.07" position="0 0 -1"></a-image>
+      <a-text visible="true" id="details" value="" color="white" material="alphaTest: 0.5;" position="-0.4 -0.6 -5" resize-text></a-text>
     </a-camera>
   </a-scene>
 </body>
@@ -31,22 +32,40 @@
   .a-canvas.a-grab-cursor:hover{z-index:-1;cursor:default !important}.a-canvas.a-grab-cursor:active,.a-grabbing{z-index:-1;cursor:default !important}
 </style>
 <script type="text/javascript">
+  AFRAME.registerComponent('resize-text', {
+  init: function() {
+    var self = this;
+    window.addEventListener('resize', function(e) {
+      var height = window.innerHeight;
+      var width = window.innerWidth;
+      self.el.setAttribute('width', (width/100));
+    });
+  }
+});
+  let isFused = false;
   AFRAME.registerComponent('cursor-listener', {
   dependencies: ['raycaster'],
   init: function () {
-    var lastIndex = -1;
-    var COLORS = ['red', 'green', 'blue'];
     this.el.addEventListener('raycaster-intersected', function (e) {
-      lastIndex = (lastIndex + 1) % COLORS.length;
-      this.setAttribute('material', 'color', COLORS[lastIndex]);
-      this.setAttribute('visible', 'true');
-      console.log('I was fused at: ', e.detail.getIntersection(e.target).object.el.attributes[2].value);
+      if (!isFused) {
+        isFused = true;
+        const detailText = document.getElementById("details");
+        const buildingDetails = e.detail.getIntersection(e.target).object.el.attributes[0].value?.split("|");
+        const id = buildingDetails[0];
+        const buildingName = buildingDetails[1];
+        detailText.setAttribute("value", buildingName);
+        detailText.setAttribute("visible", "true");
+        console.log('I was fused at: ', buildingName);
+      }
     });
     this.el.addEventListener('raycaster-intersected-cleared', function (e) {
-      lastIndex = (lastIndex + 1) % COLORS.length;
-      this.setAttribute('material', 'color', COLORS[lastIndex]);
-      this.setAttribute('visible', 'false');
-      console.log('I leave fused now');
+      if (isFused) {
+        const detailText = document.getElementById("details");
+        detailText.setAttribute("visible", "false");
+        detailText.setAttribute("value", "");
+        isFused = false;
+        console.log('I leave fused now');
+      }
     });
   }
 });
@@ -65,7 +84,7 @@
       let template = document.createElement('template');
       let existingAtext = document.getElementById(`#${building.id}`);
       if (!existingAtext === true) {
-        const html = `<a-text visible="true" value="${building.building_name_en}" look-at="[gps-camera]" cursor-listener class="raycastable" scale="10 10 10" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-text>`;
+        const html = `<a-box data="${building.id}|${building.building_name_en}|${building.latitude}|${building.longitude}" color="red" visible="true" look-at="[gps-camera]" cursor-listener class="raycastable" scale="2 2 2" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-box>`;
           template.innerHTML = html;
           const node = template.content.firstChild;
           ac.appendChild(node);

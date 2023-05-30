@@ -30,6 +30,7 @@
 
 <style>
   .a-canvas.a-grab-cursor:hover{z-index:-1;cursor:default !important}.a-canvas.a-grab-cursor:active,.a-grabbing{z-index:-1;cursor:default !important}
+  canvas {z-index: -1;}
 </style>
 <script type="text/javascript">
   AFRAME.registerComponent('resize-text', {
@@ -84,7 +85,7 @@
       let template = document.createElement('template');
       let existingAtext = document.getElementById(`#${building.id}`);
       if (!existingAtext === true) {
-        const html = `<a-box data="${building.id}|${building.building_name_en}|${building.latitude}|${building.longitude}" color="red" visible="true" look-at="[gps-camera]" cursor-listener class="raycastable" scale="2 2 2" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-box>`;
+        const html = `<a-box data="${building.id}|${building.building_name_en}|${building.latitude}|${building.longitude}" color="red" visible="true" look-at="[gps-camera]" cursor-listener class="raycastable" scale="10 10 10" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-box>`;
           template.innerHTML = html;
           const node = template.content.firstChild;
           ac.appendChild(node);

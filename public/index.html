@@ -18,9 +18,10 @@
     <script src="https://unpkg.com/aframe-look-at-component@0.8.0/dist/aframe-look-at-component.min.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
+  <div class="centered instructions" id="details"></div>
   <a-scene embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false'>
     <a-camera gps-camera='minDistance: 20' look-controls-enabled='false' listener look-controls arjs-look-controls='smoothingFactor: 0.1' rotation-reader>
-      <a-cursor cursor='rayOrigin: mouse; fuse: true; fuseTimeout: 0;' raycaster="objects: .raycastable;" position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
+      <a-cursor cursor='rayOrigin: mouse; fuse: true; fuseTimeout: 0;' raycaster="showLine: true; far: 100; lineColor: red; lineOpacity: 0.5; objects: .raycastable;" position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
       <a-image src="./crosshair.png" material="alphaTest: 0.5" width="0.07" height="0.07" position="0 0 -1"></a-image>
       <a-text visible="true" id="details" value="" color="white" material="alphaTest: 0.5;" position="-0.4 -0.6 -5" resize-text></a-text>
     </a-camera>
@@ -30,7 +31,25 @@
 
 <style>
   .a-canvas.a-grab-cursor:hover{z-index:-1;cursor:default !important}.a-canvas.a-grab-cursor:active,.a-grabbing{z-index:-1;cursor:default !important}
-  canvas {z-index: -1;}
+  .centered {
+    height: 20%;
+    justify-content: center;
+    position: fixed;
+    bottom: 0%;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    margin: 0px auto;
+    left: 0;
+    right: 0;
+  }
+  .instructions {
+    position: fixed;
+    top: 5%;
+    font-size: 1.25em;
+    color: white;
+    z-index: 999999;
+}
 </style>
 <script type="text/javascript">
   AFRAME.registerComponent('resize-text', {
@@ -54,16 +73,14 @@
         const buildingDetails = e.detail.getIntersection(e.target).object.el.attributes[0].value?.split("|");
         const id = buildingDetails[0];
         const buildingName = buildingDetails[1];
-        detailText.setAttribute("value", buildingName);
-        detailText.setAttribute("visible", "true");
+        detailText.innerHTML = buildingName;
         console.log('I was fused at: ', buildingName);
       }
     });
     this.el.addEventListener('raycaster-intersected-cleared', function (e) {
       if (isFused) {
         const detailText = document.getElementById("details");
-        detailText.setAttribute("visible", "false");
-        detailText.setAttribute("value", "");
+        detailText.innerHTML = '';
         isFused = false;
         console.log('I leave fused now');
       }

@@ -20,10 +20,9 @@
 <body style="margin: 0; overflow: hidden;">
   <div class="centered instructions" id="details"></div>
   <a-scene embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false'>
-    <a-camera gps-camera='minDistance: 20' look-controls-enabled='false' listener look-controls arjs-look-controls='smoothingFactor: 0.1' rotation-reader>
-      <a-cursor cursor='rayOrigin: mouse; fuse: true; fuseTimeout: 0;' raycaster="showLine: true; far: 100; lineColor: red; lineOpacity: 0.5; objects: .raycastable;" position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
+    <a-camera gps-camera='minDistance: 20' look-controls-enabled='false' look-controls arjs-look-controls='smoothingFactor: 0.1' rotation-reader>
+      <a-cursor cursor='rayOrigin: xrselect; fuse: true; fuseTimeout: 0;' raycaster="objects: .raycastable;" position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
       <a-image src="./crosshair.png" material="alphaTest: 0.5" width="0.07" height="0.07" position="0 0 -1"></a-image>
-      <a-text visible="true" id="details" value="" color="white" material="alphaTest: 0.5;" position="-0.4 -0.6 -5" resize-text></a-text>
     </a-camera>
   </a-scene>
 </body>
@@ -31,6 +30,7 @@
 
 <style>
   .a-canvas.a-grab-cursor:hover{z-index:-1;cursor:default !important}.a-canvas.a-grab-cursor:active,.a-grabbing{z-index:-1;cursor:default !important}
+  canvas: {z-index: -1;}
   .centered {
     height: 20%;
     justify-content: center;
@@ -52,16 +52,6 @@
 }
 </style>
 <script type="text/javascript">
-  AFRAME.registerComponent('resize-text', {
-  init: function() {
-    var self = this;
-    window.addEventListener('resize', function(e) {
-      var height = window.innerHeight;
-      var width = window.innerWidth;
-      self.el.setAttribute('width', (width/100));
-    });
-  }
-});
   let isFused = false;
   AFRAME.registerComponent('cursor-listener', {
   dependencies: ['raycaster'],
@@ -102,32 +92,29 @@
       let template = document.createElement('template');
       let existingAtext = document.getElementById(`#${building.id}`);
       if (!existingAtext === true) {
-        const html = `<a-box data="${building.id}|${building.building_name_en}|${building.latitude}|${building.longitude}" color="red" visible="true" look-at="[gps-camera]" cursor-listener class="raycastable" scale="20 20 20" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-box>`;
+        const html = `<a-box data="${building.id}|${building.building_name_en}|${building.latitude}|${building.longitude}" color="red" visible="true" cursor-listener class="raycastable" scale="15 50 15" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-box>`;
           template.innerHTML = html;
           const node = template.content.firstChild;
           ac.appendChild(node);
       }
     });
     ac.flushToDOM(true);
-  }
-  async function getLocation() {
-      if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(showPosition);
-      }
-      else {
-          console.log("Geolocation is not supported by this browser");
-      }
-  }
-  async function showPosition(position) {
-    console.log("Latitude: " + position.coords.latitude);
-    console.log("Longitude: " + position.coords.longitude);
-    await updateBuildingEnitity(position.coords.latitude, position.coords.longitude);
+    var raycasterEl = AFRAME.scenes[0].querySelector('[raycaster]');
+    raycasterEl.components.raycaster.refreshObjects();
   }
   window.onload = async () => {
-      await getLocation();
-      const el = document.querySelector("[gps-camera]");
-      el.addEventListener("gps-camera-update-position", async() => {
-        await getLocation();
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      console.log("Latitude: " + position.coords.latitude);
+      console.log("Longitude: " + position.coords.longitude);
+      await updateBuildingEnitity(position.coords.latitude, position.coords.longitude);
+    });
+    const el = document.querySelector("[gps-camera]");
+    el.addEventListener("gps-camera-update-position", async() => {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        console.log("Latitude: " + position.coords.latitude);
+        console.log("Longitude: " + position.coords.longitude);
+        await updateBuildingEnitity(position.coords.latitude, position.coords.longitude);
       });
+    });
   };
 </script>

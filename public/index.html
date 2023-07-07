@@ -19,7 +19,7 @@
 </head>
 <body style="margin: 0; overflow: hidden;">
   <div class="centered instructions" id="details"></div>
-  <a-scene embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; debugUIEnabled: false'>
+  <a-scene embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960;debugUIEnabled: false'>
     <a-camera gps-camera='gpsMinDistance: 100;minDistance: 40;' look-controls-enabled='false' arjs-look-controls='smoothingFactor: 0.1' rotation-reader>
       <a-cursor cursor='rayOrigin: xrselect; fuse: true; fuseTimeout: 0;' raycaster="objects: .raycastable;" position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
       <a-image src="./crosshair.png" material="alphaTest: 0.5" width="0.07" height="0.07" position="0 0 -1"></a-image>

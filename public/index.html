@@ -21,8 +21,8 @@
   <div class="centered instructions" id="details"></div>
   <a-scene embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960;debugUIEnabled: false'>
     <a-camera gps-camera='gpsMinDistance: 100;minDistance: 40;' look-controls-enabled='false' arjs-look-controls rotation-reader>
-      <a-cursor cursor='rayOrigin: xrselect; fuse: true; fuseTimeout: 0;' raycaster="objects: .raycastable;" width="0.2" height="0.23" position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
-      <a-image src="./crosshair.png" material="alphaTest: 0.5" width="0.2" height="0.23" position="0 0 -1"></a-image>
+      <!--<a-cursor cursor='rayOrigin: xrselect; fuse: true; fuseTimeout: 0;' raycaster="objects: .raycastable;" width="0.2" height="0.23" position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>-->
+      <a-image src="./crosshair.png" cursor='rayOrigin: xrselect; fuse: true; fuseTimeout: 0;' raycaster="objects: .raycastable;" material="alphaTest: 0.5" width="0.2" height="0.23" position="0 0 -1"></a-image>
     </a-camera>
   </a-scene>
 </body>
@@ -95,7 +95,7 @@
       let template = document.createElement('template');
       let existingAtext = document.getElementById(`#${building.id}`);
       if (!existingAtext === true) {
-        const html = `<a-image data="${building.id}|${building.building_name_en}|${building.latitude}|${building.longitude}" id="${building.id}" src="./location.png" material="alphaTest: 0.5;" look-at="[gps-camera]" cursor-listener class="raycastable" scale="5 5 5" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-image>`;
+        const html = `<a-image data="${building.id}|${building.building_name_en}|${building.latitude}|${building.longitude}" id="${building.id}" src="./location.png" material="alphaTest: 0.5;" look-at="[gps-camera]" cursor-listener class="raycastable" scale="4 4 4" gps-entity-place="latitude: ${building.latitude}; longitude: ${building.longitude};"></a-image>`;
           template.innerHTML = html;
           const node = template.content.firstChild;
           ac.appendChild(node);
@@ -107,6 +107,8 @@
         }
       }
     });
+    var raycasterEl = AFRAME.scenes[0].querySelector('[raycaster]');
+    raycasterEl.components.raycaster.refreshObjects();
     /*
     ac.flushToDOM(true);
     var raycasterEl = AFRAME.scenes[0].querySelector('[raycaster]');

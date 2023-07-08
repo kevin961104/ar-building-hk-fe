@@ -20,7 +20,7 @@
 <body style="margin: 0; overflow: hidden;">
   <div class="centered instructions" id="details"></div>
   <a-scene embedded vr-mode-ui='enabled: false' device-orientation-permission-ui="enabled: false" arjs='sourceType: webcam; sourceWidth:1280; sourceHeight:960; displayWidth: 1280; displayHeight: 960;debugUIEnabled: false'>
-    <a-camera gps-camera='gpsMinDistance: 40;minDistance: 40;maxDistance: 100;' look-controls-enabled='false' arjs-look-controls rotation-reader>
+    <a-camera gps-camera='gpsMinDistance: 40;minDistance: 40;maxDistance: 300;' look-controls-enabled='false' arjs-look-controls rotation-reader>
       <a-cursor cursor='rayOrigin: xrselect; fuse: true; fuseTimeout: 0;' raycaster="objects: .raycastable;" width="0.2" height="0.23" position="0 0 -1" material="opacity: 0;alphaTest: 0.5;"></a-cursor>
       <a-image src="./crosshair.png" material="alphaTest: 0.5" width="0.2" height="0.23" position="0 0 -1"></a-image>
     </a-camera>
@@ -78,10 +78,10 @@
     }
   });
   async function updateBuildingEnitity(latitude, longitude) {
-    const west = longitude - 0.001;
-    const east = longitude + 0.001;
-    const south = latitude - 0.001;
-    const north = latitude + 0.001;
+    const west = longitude - 0.0015;
+    const east = longitude + 0.0015;
+    const south = latitude - 0.0015;
+    const north = latitude + 0.0015;
     const response = await fetch(`https://ar-building-hk-be.ap-east-1.elasticbeanstalk.com/api/map?bbox=${west},${south},${east},${north}`);
     const pois = await response.json();
     const nearBuildings = pois.data.buildings;
